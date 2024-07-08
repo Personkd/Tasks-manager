@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+</head>
+<body>
+<form method="post">
+    {% csrf_token %}
+    <label>{{ form.username.label }}</label><br>
+    {{ form.username }}<br>
+    <label>{{ form.email.label }}</label><br>
+    {{ form.email}}<br>
+    <label>{{ form.password1.label }}</label><br>
+    {{ form.password1 }}<br>
+    <label>{{ form.password2.label }}</label><br>
+    {{ form.password2 }}<br><br>
+    <input type="submit" value="Register"><br><br>
+    <p>Alredy have an account? <a href = "{% url 'Login' %}">Login</a></p>
+</form>
+</body>
+</html>

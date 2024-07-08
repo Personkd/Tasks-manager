@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+</head>
+<style>
+#text_of_new_task
+{
+    height:200px;
+    font-size:14pt;
+}
+</style>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <p>{{user.username}}</p>
+        <a href="/profileedit/">Edit profile</a><br>
+        <a href="/logout/">Logout</a><br>
+        <hr>
+        <p>Create a task</p><br>
+        <label for="text_of_new_task">Text:</label>
+        <textarea id="text_of_new_task" cols="40" rows="5"></textarea><br>
+
+        <label for="deadline_of_new_task">Deadline</label>
+        <input type="date" id="deadline_of_new_task"><br>
+
+        <label for="tasks_priority">Task priority: </label>
+        <select id="tasks_priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select><br>
+
+        <input type="submit" value = "Create task"
+               hx-trigger="click"
+               hx-post="{% url  'Home' %}"
+               hx-include="#tasks_priority, #deadline_of_new_task, #text_of_new_task [name = 'csrfmiddlewaretoken']"
+               hx-target="#tasks"
+        >
+        <hr>
+        {% block tasks %}
+            <div id = "tasks">
+            <p>Deadline: today</p>
+            <hr color="red">
+            <hr color="red">
+
+            <p>Deadline: tomorrow</p>
+            <hr color="yellow">
+            <hr color="yellow">
+
+            <p>Deadline: the day after tomorrow</p>
+            <hr color="green">
+            <hr color="green">
+
+            <a href="/tasklist/">All tasks</a><br>
+            </div>
+        {% endblock %}
+</body>
+</html>
