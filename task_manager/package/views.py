@@ -2,7 +2,6 @@ from django.contrib.auth.decorators import login_required
 from  django.contrib.auth import login, logout
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView,UpdateView,FormView
-from django.contrib.auth.views import LoginView
 from django.views.generic.base import TemplateView
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -33,19 +32,70 @@ class LoginPage(LoginView):
 class HomePage(TemplateView):
     template_name = "home.html"
 
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tasks_today"] = Task.objects.filter(deadline=datetime.date.today())
+        context["tasks_tomorrow"] = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=1))
+        context["tasks_the_day_after_tomorrow"] = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=2))
+        return context
+
+class TaskListPage(TemplateView):
+    template_name = "tasklist.html"
+
+    def post(self,request,**kwargs):
+        data = request.POST
+        tag = data.get("sorting_tag")
+        if tag is "incompleted":
+            tasks = Task.objects.filter(done=False)
+        elif tag is "completed":
+            tasks = Task.objects.filter(done=True)
+        elif tag is "creation_date":
+            tasks = Task.objects.all().order_by("task__creation_date")
+        elif tag is "deadline":
+            tasks = Task.objects.all().order_by("task__deadline")
+        elif tag is "priority":
+            tasks = Task.objects.all().order_by("task__priority")
+        elif tag is None:
+            tasks = None
+        response = render_block_to_string("tasklist.html", "posts", {"tasks": tasks})
+        return HttpResponse(response)
+
+class CreateTaskPage (TemplateView):
+    template_name = "home.html"
+
     def post(self,request,**kwargs):
         data = request.POST
         print(data)
-        #user = request.user
-        #text = data.get('text_of_new_task')
-        #added_at = datetime.datetime.now().date()
-        #deadline = data.get('deadline_of_new_task')
-        #priority = data.get("tasks_priority")
-        #done = False
-        #task = Task(user=user, text=text, added_at=added_at,deadline=deadline, priority=priority, done=done)
-        #task.save()
-        #response = render_block_to_string("Post.html", "tasks", {"today": Comments.objects.filter(post=post)})
-        #return HttpResponse(response)
+        user = request.user
+        text = data.get('text_of_new_task')
+        added_at = datetime.datetime.now().date()
+        deadline = data.get('deadline_of_new_task')
+        priority = data.get("task_priority")
+        done = False
+        task = Task(user=user, text=text, added_at=added_at,deadline=deadline, priority=priority, done=done)
+        task.save()
+        tasks_today = Task.objects.filter(deadline=datetime.date.today())
+        tasks_tomorrow = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=1))
+        tasks_the_day_after_tomorrow = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=2))
+        response = render_block_to_string("Post.html", "tasks", {"today":tasks_today,
+                                                                                                        "tomorrow":tasks_tomorrow,
+                                                                                                        "the_day_after_tomorrow":tasks_the_day_after_tomorrow})
+        return HttpResponse(response)
+
+
+class EditTaskPage(TemplateView):
+    template_name = "task.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = Task.objects.filter(id=kwargs["pk"])
+        context["old_text"] = task.text
+        context["old_deadline"] = task.deadline
+        context["old_priority"] = task.priority
+        context["old_state"] = task.done
+        return context
+
+
 
 
 

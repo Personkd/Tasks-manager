@@ -2,9 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Task list</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
+    <a href="/home/">Back to main page</a>
+    <hr>
+    <label for="sorting_tag">Sort tasks by: </label>
+    <select id="sorting_tag">
+        <option value="incompleted">Incompleted</option>
+        <option value="completed">Completed</option>
+        <option value="creation_date">Creation date</option>
+        <option value="deadline">Deadline</option>
+        <option value="priority">Priority</option>
+    </select><br>
+
+    <input type="submit" value = "Sort tasks"
+               hx-trigger="click"
+               hx-post="{% url  'TaskList' %}"
+               hx-include="#sorting_tag [name = 'csrfmiddlewaretoken']"
+               hx-target="#tasks"
+    >
+    <hr>
+    {% block tasks %}
+    <div id = "tasks">
+        {% if tasks == None %}
+            <div>
+                <hr color="red">
+                <p>No tasks found with such filter</p>
+                <hr color="red">
+            </div>
+        {% else %}
+            {% for i in tasks %}
+                <div>
+                    <p>{{ i.text }}</p>
+                    <p>{{ i.deadline }}</p>
+                    <p>{{ i.priority }}</p>
+                    <p>{{ i.deadline }}</p>
+                    {% if i.done == True %}
+                        <div>
+                            <p>Task finished</p>
+                        </div>
+                    {% else %}
+                        <div>
+                            <p>Task is not finished yet</p>
+                        </div>
+                    {% endif %}
+                    <a href="/edittask/{{ i.id }}"> View the task</a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% endblock %}
 </body>
 </html>

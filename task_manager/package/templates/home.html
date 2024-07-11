@@ -26,8 +26,8 @@
         <label for="deadline_of_new_task">Deadline</label>
         <input type="date" id="deadline_of_new_task"><br>
 
-        <label for="tasks_priority">Task priority: </label>
-        <select id="tasks_priority">
+        <label for="task_priority">Task priority: </label>
+        <select id="task_priority">
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
@@ -35,8 +35,8 @@
 
         <input type="submit" value = "Create task"
                hx-trigger="click"
-               hx-post="{% url  'Home' %}"
-               hx-include="#tasks_priority, #deadline_of_new_task, #text_of_new_task [name = 'csrfmiddlewaretoken']"
+               hx-post="{% url  'CreateTask' %}"
+               hx-include="#task_priority, #deadline_of_new_task, #text_of_new_task [name = 'csrfmiddlewaretoken']"
                hx-target="#tasks"
         >
         <hr>
@@ -44,14 +44,68 @@
             <div id = "tasks">
             <p>Deadline: today</p>
             <hr color="red">
+                <div>
+                    {% for i in today %}
+                        <p>{{ i.text }}</p>
+                        <p>{{ i.deadline }}</p>
+                        <p>{{ i.priority }}</p>
+                        <p>{{ i.deadline }}</p>
+                        {% if i.done == True %}
+                            <div>
+                                <p>Task finished</p>
+                            </div>
+                        {% else %}
+                            <div>
+                                <p>Task is not finished yet</p>
+                            </div>
+                        {% endif %}
+                        <a href="/edittask/{{ i.id }}"> View the task</a>
+                    {% endfor %}
+                </div>
             <hr color="red">
 
             <p>Deadline: tomorrow</p>
             <hr color="yellow">
+                <div>
+                    {% for i in tomorrow %}
+                        <p>{{ i.text }}</p>
+                        <p>{{ i.deadline }}</p>
+                        <p>{{ i.priority }}</p>
+                        <p>{{ i.deadline }}</p>
+                        {% if i.done == True %}
+                            <div>
+                                <p>Task finished</p>
+                            </div>
+                        {% else %}
+                            <div>
+                                <p>Task is not finished yet</p>
+                            </div>
+                        {% endif %}
+                        <a href="/edittask/{{ i.id }}"> View the task</a>
+                    {% endfor %}
+                </div>
             <hr color="yellow">
 
             <p>Deadline: the day after tomorrow</p>
             <hr color="green">
+                <div>
+                    {% for i in the_day_after_tomorrow %}
+                        <p>{{ i.text }}</p>
+                        <p>{{ i.deadline }}</p>
+                        <p>{{ i.priority }}</p>
+                        <p>{{ i.deadline }}</p>
+                        {% if i.done == True %}
+                            <div>
+                                <p>Task finished</p>
+                            </div>
+                        {% else %}
+                            <div>
+                                <p>Task is not finished yet</p>
+                            </div>
+                        {% endif %}
+                        <a href="/edittask/{{ i.id }}"> View the task</a>
+                    {% endfor %}
+                </div>
             <hr color="green">
 
             <a href="/tasklist/">All tasks</a><br>

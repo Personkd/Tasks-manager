@@ -2,9 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Task</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
+    <div>
+        <label for="new_task_text">Current text:</label>
+        <textarea id="new_task_text" cols="40" rows="5">{{ old_text }}</textarea><br><br>
+    </div>
+
+    <div>
+        <label for="old_task_deadline">Current deadline:</label>
+        <p id="old_task_deadline">{{ old_deadline }}</p><br>
+        <label for="new_task_deadline">New deadline:</label>
+        <input type="date" id="new_task_deadline"><br><br>
+    </div>
+
+    <div>
+        <label for="old_task_priority">Current priority:</label>
+        <p id="old_task_priority">{{ old_deadline }}</p><br>
+        <label for="new_task_priority">New priority:</label>
+        <select id="new_task_priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select><br><br>
+    </div>
+
+    <div>
+        <label for="old_task_state">Current state:</label>
+        <p id="old_task_state">{{ old_state }}</p><br>
+        <label for="new_task_state">New task state:</label>
+        <select id="new_task_state">
+            <option value="done">Finished</option>
+            <option value="is_not_done">Unfinished</option>
+        </select><br><br>
+    </div>
+
+    <div>
+        <input type="submit" value = "Change task"
+                hx-trigger="click"
+                hx-post="{% url  'EditTask' %}"
+                hx-include="#new_task_text, #new_task_deadline, #new_task_priority, #new_task_state [name = 'csrfmiddlewaretoken']"
+                hx-target="#task"
+        >
+    </div>
 </body>
 </html>
