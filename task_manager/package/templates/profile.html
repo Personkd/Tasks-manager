@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% block user %}
+        <div id="user">
+            <a href="/home/">Back to main page</a>
+
+            <div>
+                <label for="new_username">New username:</label>
+                <input type="text" id="new_username" value="{{ username }}"><br><br>
+            </div>
+            <div>
+                <label for="new_email">New email:</label>
+                <input type="text" id="new_email" value="{{ email }}"><br><br>
+            </div>
+            <input type="submit" value = "Change task"
+                    hx-trigger="click"
+                    hx-post="{% url  'Profile' %}"
+                    hx-include="#new_username, #new_emsil [name = 'csrfmiddlewaretoken']"
+                    hx-target="#user"
+            >
+       </div>
+    {% endblock %}
+</body>
+</html>
