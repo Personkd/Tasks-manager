@@ -8,6 +8,7 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% block task %}
+        <div id = "task">
         <a href="/home/">Back to main page</a>
 
         <div>
@@ -24,7 +25,7 @@
 
         <div>
             <label for="old_task_priority">Current priority:</label>
-            <p id="old_task_priority">{{ old_deadline }}</p><br>
+            <p id="old_task_priority">{{ old_priority }}</p><br>
             <label for="new_task_priority">New priority:</label>
             <select id="new_task_priority">
                 <option value="low">Low</option>
@@ -46,11 +47,12 @@
         <div>
             <input type="submit" value = "Change task"
                     hx-trigger="click"
-                    hx-post="{% url  'EditTask' %}"
-                    hx-include="#new_task_text, #new_task_deadline, #new_task_priority, #new_task_state [name = 'csrfmiddlewaretoken']"
+                    hx-post="/edittask/task.id/"
+                    hx-include="#new_task_text, #new_task_deadline, #new_task_priority, #new_task_state, [name = 'csrfmiddlewaretoken']"
                     hx-target="#task"
             >
         </div>
+            </div>
     {% endblock %}
 </body>
 </html>

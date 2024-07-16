@@ -14,6 +14,8 @@ import datetime
 from .models import Task,User
 from .forms import Login_class,User_class
 
+from .mixins import IsAuthenticated
+
 
 class RegistrationPage(CreateView):
     template_name = "registration.html"
@@ -29,14 +31,16 @@ class LoginPage(LoginView):
     success_url = reverse_lazy("Home")
 
 
-class HomePage(TemplateView):
+class HomePage(IsAuthenticated,TemplateView):
     template_name = "home.html"
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
-        context["tasks_today"] = Task.objects.filter(deadline=datetime.date.today())
-        context["tasks_tomorrow"] = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=1))
-        context["tasks_the_day_after_tomorrow"] = Task.objects.filter(deadline=datetime.date.today() + datetime.timedelta(days=2))
+        user=self.request.user
+        context["tasks_today"] = Task.objects.filter(user=user, deadline=datetime.date.today())
+        context["tasks_tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=1))
+        context["tasks_the_day_after_tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=2))
+        print(context)
         return context
 
 class TaskListPage(TemplateView):
@@ -44,20 +48,22 @@ class TaskListPage(TemplateView):
 
     def post(self,request,**kwargs):
         data = request.POST
-        tag = data.get("sorting_tag")
-        if tag is "incompleted":
+        tag = data.get('sorting_tag')
+        if tag == 'incompleted':
             tasks = Task.objects.filter(user=request.user,done=False)
-        elif tag is "completed":
+        elif tag == 'completed':
             tasks = Task.objects.filter(user=request.user,done=True)
-        elif tag is "creation_date":
-            tasks = Task.objects.filter(user=request.user).order_by("task__creation_date")
-        elif tag is "deadline":
-            tasks = Task.objects.filter(user=request.user).order_by("task__deadline")
-        elif tag is "priority":
-            tasks = Task.objects.filter(user=request.user).order_by("task__priority")
-        elif tag is None:
+        elif tag == 'creation_date':
+            tasks = Task.objects.filter(user=request.user).order_by("added_at")
+        elif tag == 'deadline':
+            tasks = Task.objects.filter(user=request.user).order_by("deadline")
+        elif tag == 'priority':
+            tasks = Task.objects.filter(user=request.user).order_by("priority")
+        elif tag == None:
             tasks = None
-        response = render_block_to_string("tasklist.html", "posts", {"tasks": tasks})
+        if len(tasks) == 0:
+            tasks = None
+        response = render_block_to_string("tasklist.html", "tasks", {"tasklist": tasks})
         return HttpResponse(response)
 
 class CreateTaskPage (TemplateView):
@@ -65,7 +71,6 @@ class CreateTaskPage (TemplateView):
 
     def post(self,request,**kwargs):
         data = request.POST
-        print(data)
         user = request.user
         text = data.get('text_of_new_task')
         added_at = datetime.datetime.now().date()
@@ -86,19 +91,11 @@ class CreateTaskPage (TemplateView):
 class EditTaskPage(TemplateView):
     template_name = "task.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        task = Task.objects.filter(id=kwargs["pk"])
-        context["old_text"] = task.text
-        context["old_deadline"] = task.deadline
-        context["old_priority"] = task.priority
-        context["old_state"] = task.done
-        return context
 
     def post(self,request,**kwargs):
         data = request.POST
         print(data)
-        task = Task.objects.filter(id=kwargs["pk"])
+        task = Task.objects.get(id=kwargs["pk"])
         if data.get("new_task_text") is not None:
             task.update(text=data.get("new_task_text"))
         if data.get("new_task_deadline") is not None:
@@ -113,23 +110,36 @@ class EditTaskPage(TemplateView):
                                                                  "old_state": task.done})
         return HttpResponse(response)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = Task.objects.get(id=kwargs["pk"])
+        context["task"] = task
+        context["old_text"] = task.text
+        context["old_deadline"] = task.deadline
+        context["old_priority"] = task.priority
+        context["old_state"] = task.done
+        return context
+
 
 class ProfileEditPage(TemplateView):
     template_name = "profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = User.objects.get(id=self.kwargs["pk"])
+        user = self.request.user
         context["username"] = user
         context["email"] = user.email
         return context
 
     def post(self,request,**kwargs):
         data = request.POST
+        print(data)
         user = request.user
         new_username = data.get("new_username")
         new_email = data.get("new_email")
-        user.update(username=new_username,email=new_email)
+        user.name = new_username
+        user.email = new_email
+        user.save(updated_fields=["username","email"])
         response = render_block_to_string("profile.html", "user", {"username": user.username,
                                                                 "email": user.email})
         return HttpResponse(response)

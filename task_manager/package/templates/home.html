@@ -21,13 +21,13 @@
         <hr>
         <p>Create a task</p><br>
         <label for="text_of_new_task">Text:</label>
-        <textarea id="text_of_new_task" cols="40" rows="5"></textarea><br>
+        <input type="text" id="text_of_new_task" name="text_of_new_task"><br>
 
         <label for="deadline_of_new_task">Deadline</label>
-        <input type="date" id="deadline_of_new_task"><br>
+        <input type="date" id="deadline_of_new_task" name="deadline_of_new_task"><br>
 
         <label for="task_priority">Task priority: </label>
-        <select id="task_priority">
+        <select id="task_priority" name="task_priority">
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
@@ -35,8 +35,8 @@
 
         <input type="submit" value = "Create task"
                hx-trigger="click"
-               hx-post="{% url  'CreateTask' %}"
-               hx-include="#task_priority, #deadline_of_new_task, #text_of_new_task [name = 'csrfmiddlewaretoken']"
+               hx-post="/createtask/"
+               hx-include="#text_of_new_task, #task_priority, #deadline_of_new_task, [name = 'csrfmiddlewaretoken']"
                hx-target="#tasks"
         >
         <hr><br><br>
@@ -45,8 +45,8 @@
             <p>Deadline: today</p>
             <hr color="red">
                 <div>
-                    {% if today is not None %}
-                        {% for i in today %}
+                    {% if tasks_today is not None %}
+                        {% for i in tasks_today %}
                             <p>{{ i.text }}</p>
                             <p>{{ i.deadline }}</p>
                             <p>{{ i.priority }}</p>
@@ -73,8 +73,8 @@
             <p>Deadline: tomorrow</p>
             <hr color="yellow">
                 <div>
-                    {% if tomorrow is not None %}
-                        {% for i in tomorrow %}
+                    {% if tasks_tomorrow is not None %}
+                        {% for i in tasks_tomorrow %}
                             <p>{{ i.text }}</p>
                             <p>{{ i.deadline }}</p>
                             <p>{{ i.priority }}</p>
@@ -101,8 +101,8 @@
             <p>Deadline: the day after tomorrow</p>
             <hr color="green">
                 <div>
-                    {% if the_day_after_tomorrow is not None %}
-                        {% for i in the_day_after_tomorrow %}
+                    {% if tasks_the_day_after_tomorrow is not None %}
+                        {% for i in tasks_the_day_after_tomorrow %}
                             <p>{{ i.text }}</p>
                             <p>{{ i.deadline }}</p>
                             <p>{{ i.priority }}</p>
