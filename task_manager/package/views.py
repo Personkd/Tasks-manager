@@ -43,7 +43,7 @@ class HomePage(IsAuthenticated,TemplateView):
         print(context)
         return context
 
-class TaskListPage(TemplateView):
+class TaskListPage(IsAuthenticated,TemplateView):
     template_name = "tasklist.html"
 
     def post(self,request,**kwargs):
@@ -66,7 +66,7 @@ class TaskListPage(TemplateView):
         response = render_block_to_string("tasklist.html", "tasks", {"tasklist": tasks})
         return HttpResponse(response)
 
-class CreateTaskPage (TemplateView):
+class CreateTaskPage (IsAuthenticated,TemplateView):
     template_name = "home.html"
 
     def post(self,request,**kwargs):
@@ -88,7 +88,7 @@ class CreateTaskPage (TemplateView):
         return HttpResponse(response)
 
 
-class EditTaskPage(TemplateView):
+class EditTaskPage(IsAuthenticated,TemplateView):
     template_name = "task.html"
 
 
@@ -121,7 +121,7 @@ class EditTaskPage(TemplateView):
         return context
 
 
-class ProfileEditPage(TemplateView):
+class ProfileEditPage(IsAuthenticated,TemplateView):
     template_name = "profile.html"
 
     def get_context_data(self, **kwargs):

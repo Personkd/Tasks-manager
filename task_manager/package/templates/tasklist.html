@@ -11,62 +11,74 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 <div class="container-fluid mh-100 bg-danger" style="height: 100vh">
-    <div class="row ">
-    <div class="card">
-        <div class="card-body">
-    <a href="/home/">Back to main page</a>
-    <hr>
-    <label for="sorting_tag">Sort tasks by: </label>
-    <select id="sorting_tag" name="sorting_tag">
-        <option value="incompleted">Incompleted</option>
-        <option value="completed">Completed</option>
-        <option value="creation_date">Creation date</option>
-        <option value="deadline">Deadline</option>
-        <option value="priority">Priority</option>
-    </select><br>
+    <div class="row bg-danger" style="height: 100vh">
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="card w-100 p-3 h-35 d-inline-block ">
+                <div class="card-body text-center">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="sorting_tag">Sort tasks by: </label>
+                                <select id="sorting_tag" name="sorting_tag">
+                                    <option value="incompleted">Incompleted</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="creation_date">Creation date</option>
+                                    <option value="deadline">Deadline</option>
+                                    <option value="priority">Priority</option>
+                                </select>
+                            </div>
 
-    <input type="submit" value = "Sort tasks"
-               hx-trigger="click"
-               hx-post="/tasklist/"
-               hx-include="#sorting_tag, [name = 'csrfmiddlewaretoken']"
-               hx-target="#tasks"
-    >
-    <hr>
-    {% block tasks %}
-    <div id = "tasks">
-        {% if tasklist == None  %}
-                        <div class="container">
-                            <div class="card border-3 border-danger">
-                                <div class="card-body">
-                                    <p>No tasks found with such filter</p>
-                                </div>
+                            <div class="col-4">
+                                <input type="submit" value = "Sort tasks"
+                                    hx-trigger="click"
+                                    hx-post="/tasklist/"
+                                    hx-include="#sorting_tag, [name = 'csrfmiddlewaretoken']"
+                                    hx-target="#tasks"
+                                >
+                            </div>
+
+                            <div class="col-4">
+                                 <a href="/home/" class="link-danger">Back to main page</a>
                             </div>
                         </div>
-        {% else %}
-            {% for i in tasklist %}
-                <div>
-                    <p>{{ i.text }}</p>
-                    <p>{{ i.deadline }}</p>
-                    <p>{{ i.priority }}</p>
-                    <p>{{ i.deadline }}</p>
-                    {% if i.done == True %}
-                        <div>
-                            <p>Task finished</p>
+                    </div>
+                    <hr>
+                    {% block tasks %}
+                        <div id = "tasks">
+                            {% if tasklist == None  %}
+                                <div class="container">
+                                    <div class="card border-3 border-danger">
+                                        <div class="card-body">
+                                            <p>No tasks found with such filter</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% for i in tasklist %}
+                                    <div>
+                                        <p>{{ i.text }}</p>
+                                        <p>{{ i.deadline }}</p>
+                                        <p>{{ i.priority }}</p>
+                                        <p>{{ i.deadline }}</p>
+                                            {% if i.done == True %}
+                                                <div>
+                                                    <p>Task finished</p>
+                                                </div>
+                                            {% else %}
+                                                <div>
+                                                    <p>Task is not finished yet</p>
+                                                </div>
+                                            {% endif %}
+                                            <a href="/edittask/{{ i.id }}"> View the task</a>
+                                    </div>
+                                {% endfor %}
+                             {% endif %}
                         </div>
-                    {% else %}
-                        <div>
-                            <p>Task is not finished yet</p>
-                        </div>
-                    {% endif %}
-                    <a href="/edittask/{{ i.id }}"> View the task</a>
+                    {% endblock %}
                 </div>
-            {% endfor %}
-        {% endif %}
+            </div>
+        </div>
     </div>
-    {% endblock %}
-        </div>
-        </div>
-        </div>
 </div>
 </body>
 </html>

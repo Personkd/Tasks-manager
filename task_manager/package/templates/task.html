@@ -5,54 +5,112 @@
     <title>Task</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 </head>
+<style>
+#old_task_priority_1, #old_task_priority_2, #old_task_priority_3
+{
+    font-size:15pt;
+}
+</style>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    {% block task %}
-        <div id = "task">
-        <a href="/home/">Back to main page</a>
+<div class="container-fluid mh-100 bg-danger" style="height: 100vh">
+    <div class="row bg-danger" style="height: 100vh">
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="card w-25 p-3 h-35 d-inline-block">
+                <div class="card-body text-center">
+                    {% block task %}
+                        <div id = "task">
 
-        <div>
-            <label for="new_task_text">Current text:</label>
-            <textarea id="new_task_text" cols="40" rows="5">{{ old_text }}</textarea><br><br>
-        </div>
+                            <div>
+                                <label for="new_task_text">Current text:</label>
+                                <textarea id="new_task_text" cols="40" rows="5" class="form-control border-3 border-danger"">{{ old_text }} </textarea>
+                            </div><br>
 
-        <div>
-            <label for="old_task_deadline">Current deadline:</label>
-            <p id="old_task_deadline">{{ old_deadline }}</p><br>
-            <label for="new_task_deadline">New deadline:</label>
-            <input type="date" id="new_task_deadline"><br><br>
-        </div>
+                            <div class="card border-3 border-danger">
+                                <div class="row g-2">
+                                    <div class="col-md">
+                                        <label for="old_task_deadline">Current deadline:</label>
+                                        <p id="old_task_deadline" class="text-danger">Till {{ old_deadline }}</p>
+                                    </div>
 
-        <div>
-            <label for="old_task_priority">Current priority:</label>
-            <p id="old_task_priority">{{ old_priority }}</p><br>
-            <label for="new_task_priority">New priority:</label>
-            <select id="new_task_priority">
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-            </select><br><br>
-        </div>
+                                    <div class="col-md">
+                                        <label for="new_task_deadline">New deadline:</label>
+                                        <input type="date" id="new_task_deadline" class="form-control">
+                                    </div>
+                                </div>
+                            </div><br>
 
-        <div>
-            <label for="old_task_state">Current state:</label>
-            <p id="old_task_state">{{ old_state }}</p><br>
-            <label for="new_task_state">New task state:</label>
-            <select id="new_task_state">
-                <option value="done">Finished</option>
-                <option value="is_not_done">Unfinished</option>
-            </select><br><br>
-        </div>
+                            <div class="card border-3 border-danger">
+                                <div class="row g-2">
+                                    <div class="col-md">
+                                        {% if old_priority == "high" %}
+                                            <label for="old_task_priority_1">Current priority:</label>
+                                            <p id="old_task_priority_1" class="text-danger">High</p>
+                                        {% elif old_priority == "medium"%}
+                                            <label for="old_task_priority_2">Current priority:</label>
+                                            <p id="old_task_priority_2" class="text-warning">Medium</p>
+                                        {% else %}
+                                            <label for="old_task_priority_3">Current priority:</label>
+                                            <p id="old_task_priority_3" class="text-success">Low</p>
+                                        {% endif %}
+                                    </div>
 
-        <div>
-            <input type="submit" value = "Change task"
-                    hx-trigger="click"
-                    hx-post="/edittask/task.id/"
-                    hx-include="#new_task_text, #new_task_deadline, #new_task_priority, #new_task_state, [name = 'csrfmiddlewaretoken']"
-                    hx-target="#task"
-            >
-        </div>
+                                    <div class="col-md">
+                                        <label for="new_task_priority">New priority:</label>
+                                        <select id="new_task_priority" class="form-select">
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div><br>
+
+                            <div class="card border-3 border-danger">
+                                <div class="row g-2">
+                                    <div class="col-md">
+                                        {% if old_state == True %}
+                                            <label for="old_task_state_1">Current state:</label>
+                                            <p id="old_task_state_1" class="text-success">Task is finished</p>
+                                        {% else %}
+                                            <label for="old_task_state_2">Current state:</label>
+                                            <p id="old_task_state_2" class="text-danger">Task is in process</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-md">
+                                        <label for="new_task_state">New task state:</label>
+                                        <select id="new_task_state" class="form-control">
+                                            <option value="done">Finished</option>
+                                            <option value="is_not_done">Unfinished</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div><br>
+
+                            <div class="row g-2">
+                                <div class="col-md">
+                                    <input type="submit" value = "Save changes" class="btn btn-danger"
+                                            hx-trigger="click"
+                                            hx-post="/edittask/{{task.id}}"
+                                            hx-include="#new_task_text, #new_task_deadline, #new_task_priority, #new_task_state, [name = 'csrfmiddlewaretoken']"
+                                            hx-target="#task"
+                                    >
+                                </div>
+
+                                <div class="col-md">
+                                    <a href="/home/" class="link-danger">Back to main page</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
             </div>
-    {% endblock %}
+        </div>
+    </div>
+</div>
 </body>
 </html>
