@@ -26,7 +26,7 @@
 
                             <div>
                                 <label for="new_task_text">Current text:</label>
-                                <textarea id="new_task_text" cols="40" rows="5" class="form-control border-3 border-danger"">{{ old_text }} </textarea>
+                                <textarea id="new_task_text" name="new_task_text" cols="40" rows="5" class="form-control border-3 border-danger">{{ old_text }} </textarea>
                             </div><br>
 
                             <div class="card border-3 border-danger">
@@ -38,7 +38,7 @@
 
                                     <div class="col-md">
                                         <label for="new_task_deadline">New deadline:</label>
-                                        <input type="date" id="new_task_deadline" class="form-control">
+                                        <input type="date" id="new_task_deadline" name="new_task_deadline" class="form-control">
                                     </div>
                                 </div>
                             </div><br>
@@ -60,7 +60,7 @@
 
                                     <div class="col-md">
                                         <label for="new_task_priority">New priority:</label>
-                                        <select id="new_task_priority" class="form-select">
+                                        <select id="new_task_priority" name ="new_task_priority" class="form-select">
                                             <option value="low">Low</option>
                                             <option value="medium">Medium</option>
                                             <option value="high">High</option>
@@ -83,7 +83,7 @@
 
                                     <div class="col-md">
                                         <label for="new_task_state">New task state:</label>
-                                        <select id="new_task_state" class="form-control">
+                                        <select id="new_task_state" name ="new_task_state" class="form-control">
                                             <option value="done">Finished</option>
                                             <option value="is_not_done">Unfinished</option>
                                         </select>

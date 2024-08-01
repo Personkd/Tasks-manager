@@ -5,128 +5,197 @@
     <title>Home page</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 </head>
 <style>
 #text_of_new_task
 {
-    height:200px;
-    font-size:14pt;
+    height:125px;
+}
+
+#userinfo
+{
+    height:155px;
+}
+
+textarea {
+  resize: none;
 }
 </style>
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        <p>{{user.username}}</p>
-        <a href="/profile/">Edit profile</a><br>
-        <a href="/logout/">Logout</a><br>
-        <hr>
-        <p>Create a task</p><br>
-        <label for="text_of_new_task">Text:</label>
-        <input type="text" id="text_of_new_task" name="text_of_new_task"><br>
-
-        <label for="deadline_of_new_task">Deadline</label>
-        <input type="date" id="deadline_of_new_task" name="deadline_of_new_task"><br>
-
-        <label for="task_priority">Task priority: </label>
-        <select id="task_priority" name="task_priority">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-        </select><br>
-
-        <input type="submit" value = "Create task"
-               hx-trigger="click"
-               hx-post="/createtask/"
-               hx-include="#text_of_new_task, #task_priority, #deadline_of_new_task, [name = 'csrfmiddlewaretoken']"
-               hx-target="#tasks"
-        >
-        <hr><br><br>
-        {% block tasks %}
-            <div id = "tasks">
-            <p>Deadline: today</p>
-            <hr color="red">
-                <div>
-                    {% if tasks_today is not None %}
-                        {% for i in tasks_today %}
-                            <p>{{ i.text }}</p>
-                            <p>{{ i.deadline }}</p>
-                            <p>{{ i.priority }}</p>
-                            <p>{{ i.deadline }}</p>
-                            {% if i.done == True %}
-                                <div>
-                                    <p>Task finished</p>
-                                </div>
-                            {% else %}
-                                <div>
-                                    <p>Task is not finished yet</p>
-                                </div>
-                            {% endif %}
-                            <a href="/edittask/{{ i.id }}"> View the task</a>
-                        {% endfor %}
-                    {% else %}
-                        <div>
-                            <p>No tasks with such deadline found</p>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="bg-danger">
+<div class="container-fluid mh-100 bg-danger" >
+    <div class="row bg-danger" style="height: 100vh">
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="card w-100 p-3 h-35 d-inline-block">
+                <div class="row">
+                    <div class="col-2">
+                        <div class="card w-100 p-3 h-35 d-inline-block" id="userinfo">
+                            <p class="text-bg-danger p-3 rounded">{{user.username}}</p>
+                            <a href="/profile/" class="link-danger">Edit profile</a><br>
+                            <a href="/logout/" class="link-danger">Logout</a><br>
                         </div>
-                    {% endif %}
+                    </div>
+                    <div class="col-2 d-flex align-items-center justify-content-center" style="height: 155px;">
+                        <div class="vr"></div>
+                    </div>
+                    <div class="col-4">
+                        <label for="text_of_new_task" class="form-label">Text:</label><br>
+                        <textarea id="text_of_new_task" name="text_of_new_task" class="form-control" rows="8"></textarea><br>
+                    </div>
+                    <div class="col-2">
+                        <label for="priority_of_new_task" class="form-label">Task priority: </label><br>
+                        <select id="priority_of_new_task" name="priority_of_new_task" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select><br>
+                        <a href="/tasklist/" class="link-danger"> View all tasks</a>
+                    </div>
+                    <div class="col-2">
+                        <label for="deadline_of_new_task" class="form-label">Deadline</label><br>
+                        <input type="date" id="deadline_of_new_task" name="deadline_of_new_task" class="form-control"><br>
+                        <input type="submit" value = "Create task" class="btn btn-danger"
+                            hx-trigger="click"
+                            hx-post="/createtask/"
+                            hx-include="#text_of_new_task, #priority_of_new_task, #deadline_of_new_task, [name = 'csrfmiddlewaretoken']"
+                            hx-target="#tasks"
+                        >
+                    </div>
                 </div>
-            <hr color="red"><br><br>
+                <hr><br><br>
 
-            <p>Deadline: tomorrow</p>
-            <hr color="yellow">
-                <div>
-                    {% if tasks_tomorrow is not None %}
-                        {% for i in tasks_tomorrow %}
-                            <p>{{ i.text }}</p>
-                            <p>{{ i.deadline }}</p>
-                            <p>{{ i.priority }}</p>
-                            <p>{{ i.deadline }}</p>
-                            {% if i.done == True %}
-                                <div>
-                                    <p>Task finished</p>
-                                </div>
-                            {% else %}
-                                <div>
-                                    <p>Task is not finished yet</p>
-                                </div>
-                            {% endif %}
-                            <a href="/edittask/{{ i.id }}"> View the task</a>
-                        {% endfor %}
-                    {% else %}
-                        <div>
-                            <p>No tasks with such deadline found</p>
-                        </div>
-                    {% endif %}
-                </div>
-            <hr color="yellow"><br><br>
 
-            <p>Deadline: the day after tomorrow</p>
-            <hr color="green">
-                <div>
-                    {% if tasks_the_day_after_tomorrow is not None %}
-                        {% for i in tasks_the_day_after_tomorrow %}
-                            <p>{{ i.text }}</p>
-                            <p>{{ i.deadline }}</p>
-                            <p>{{ i.priority }}</p>
-                            <p>{{ i.deadline }}</p>
-                            {% if i.done == True %}
-                                <div>
-                                    <p>Task finished</p>
-                                </div>
-                            {% else %}
-                                <div>
-                                    <p>Task is not finished yet</p>
-                                </div>
-                            {% endif %}
-                            <a href="/edittask/{{ i.id }}"> View the task</a>
-                        {% endfor %}
-                    {% else %}
-                        <div>
-                            <p>No tasks with such deadline found</p>
-                        </div>
-                    {% endif %}
-                </div>
-            <hr color="green"><br><br>
+                {% block tasks %}
+                    <div id = "tasks">
+                        <p>Deadline: today</p>
+                            <div class="card w-100 p-3 h-35 d-inline-block">
+                                {% if today != None %}
+                                    {% for i in today %}
+                                        <div class="card w-100 p-3 h-35 d-inline-block border-3 border-danger">
+                                            <label for="task_text_today" class="text-danger">Task text</label>
+                                            <p id="task_text_today">{{ i.text }}</p>
+                                            <hr class="bg-danger border-3 border-danger">
 
-            <a href="/tasklist/">All tasks</a><br>
+                                            <label for="task_deadline_today" class="text-danger">Task deadline</label>
+                                            <p id="task_deadline_today">{{ i.deadline }}</p>
+                                            <hr class="bg-danger border-3 border-danger">
+
+                                            <label for="task_priority_today" class="text-danger">Task priority</label>
+                                            <p id="task_priority_today">{{ i.priority }}</p>
+                                            <hr class="bg-danger border-3 border-danger">
+
+                                            {% if i.done == True %}
+                                                <div>
+                                                    <p class="text-bg-success p-3 rounded">Task is finished</p>
+                                                </div>
+                                            {% else %}
+                                                <div>
+                                                    <p class="text-bg-danger p-3 rounded">Task is not finished yet</p>
+                                                </div>
+                                            {% endif %}
+                                            <hr class="bg-danger border-3 border-danger">
+                                            <a href="/edittask/{{ i.id }}" class="link-danger"> View the task</a>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="container">
+                                        <div class="card border-3 border-danger">
+                                            <div class="card-body">
+                                                <p>No tasks with such deadline found</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div><br><br>
+
+                                <p>Deadline: tomorrow</p>
+                                <div class="card w-100 p-3 h-35 d-inline-block">
+                                    {% if tomorrow != None %}
+                                        {% for i in tomorrow %}
+                                            <div class="card w-100 p-3 h-35 d-inline-block border-3 border-danger">
+                                                <label for="task_text_tomorrow" class="text-danger">Task text</label>
+                                                <p id="task_text_tomorrow">{{ i.text }}</p>
+                                                <hr class="bg-danger border-3 border-danger">
+
+                                                <label for="task_deadline_tomorrow" class="text-danger">Task deadline</label>
+                                                <p id="task_deadline_tomorrow">{{ i.deadline }}</p>
+                                                <hr class="bg-danger border-3 border-danger">
+
+                                                <label for="task_priority_tomorrow" class="text-danger">Task priority</label>
+                                                <p id="task_priority_tomorrow">{{ i.priority }}</p>
+                                                <hr class="bg-danger border-3 border-danger">
+
+                                                {% if i.done == True %}
+                                                    <div>
+                                                        <p class="text-bg-success p-3 rounded">Task is finished</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div>
+                                                        <p class="text-bg-danger p-3 rounded">Task is not finished yet</p>
+                                                    </div>
+                                                {% endif %}
+                                                    <hr class="bg-danger border-3 border-danger">
+                                                    <a href="/edittask/{{ i.id }}" class="link-danger"> View the task</a>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="container">
+                                            <div class="card border-3 border-danger">
+                                                <div class="card-body">
+                                                    <p>No tasks with such deadline found</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div><br><br>
+
+                                <p>Deadline: the day after tomorrow</p>
+                                    <div class="card w-100 p-3 h-35 d-inline-block">
+                                        {% if the_day_after_tomorrow != None %}
+                                            {% for i in the_day_after_tomorrow %}
+                                                <div class="card w-100 p-3 h-35 d-inline-block border-3 border-danger">
+                                                    <label for="task_text_the_day_after_tomorrow" class="text-danger">Task text</label>
+                                                    <p id="task_text_the_day_after_tomorrow">{{ i.text }}</p>
+                                                    <hr class="bg-danger border-3 border-danger">
+
+                                                    <label for="task_deadline_the_day_after_tomorrow" class="text-danger">Task deadline</label>
+                                                    <p id="task_deadline_the_day_after_tomorrow">{{ i.deadline }}</p>
+                                                    <hr class="bg-danger border-3 border-danger">
+
+                                                    <label for="task_priority_the_day_after_tomorrow" class="text-danger">Task priority</label>
+                                                    <p id="task_priority_the_day_after_tomorrow">{{ i.priority }}</p>
+                                                    <hr class="bg-danger border-3 border-danger">
+
+                                                    {% if i.done == True %}
+                                                        <div>
+                                                            <p class="text-bg-success p-3 rounded">Task is finished</p>
+                                                        </div>
+                                                    {% else %}
+                                                        <div>
+                                                            <p class="text-bg-danger p-3 rounded">Task is not finished yet</p>
+                                                        </div>
+                                                    {% endif %}
+                                                    <hr class="bg-danger border-3 border-danger">
+                                                    <a href="/edittask/{{ i.id }}" class="link-danger"> View the task</a>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="container">
+                                                <div class="card border-3 border-danger">
+                                                    <div class="card-body">
+                                                        <p>No tasks with such deadline found</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div><br><br>
+                    </div>
+                {% endblock %}
             </div>
-        {% endblock %}
+        </div>
+    </div>
+</div>
 </body>
 </html>

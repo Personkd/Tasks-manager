@@ -12,7 +12,7 @@ from render_block import render_block_to_string
 import datetime
 
 from .models import Task,User
-from .forms import Login_class,User_class
+from .forms import Login_class,User_class,Create_task_class
 
 from .mixins import IsAuthenticated
 
@@ -37,77 +37,83 @@ class HomePage(IsAuthenticated,TemplateView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         user=self.request.user
-        context["tasks_today"] = Task.objects.filter(user=user, deadline=datetime.date.today())
-        context["tasks_tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=1))
-        context["tasks_the_day_after_tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=2))
-        print(context)
+        context["today"] = Task.objects.filter(user=user, deadline=datetime.date.today())
+        context["tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=1))
+        context["the_day_after_tomorrow"] = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=2))
         return context
 
 class TaskListPage(IsAuthenticated,TemplateView):
     template_name = "tasklist.html"
 
     def post(self,request,**kwargs):
-        data = request.POST
-        tag = data.get('sorting_tag')
-        if tag == 'incompleted':
-            tasks = Task.objects.filter(user=request.user,done=False)
-        elif tag == 'completed':
-            tasks = Task.objects.filter(user=request.user,done=True)
-        elif tag == 'creation_date':
-            tasks = Task.objects.filter(user=request.user).order_by("added_at")
-        elif tag == 'deadline':
-            tasks = Task.objects.filter(user=request.user).order_by("deadline")
-        elif tag == 'priority':
-            tasks = Task.objects.filter(user=request.user).order_by("priority")
-        elif tag == None:
-            tasks = None
-        if len(tasks) == 0:
-            tasks = None
+        tasks=Task.sort(request.POST.get('sorting_tag'),request)
         response = render_block_to_string("tasklist.html", "tasks", {"tasklist": tasks})
         return HttpResponse(response)
 
-class CreateTaskPage (IsAuthenticated,TemplateView):
+class CreateTaskPage (IsAuthenticated,CreateView): #фіксити
+    form_class = Create_task_class
     template_name = "home.html"
+    success_url = "/home/"
 
-    def post(self,request,**kwargs):
-        data = request.POST
-        user = request.user
-        text = data.get('text_of_new_task')
-        added_at = datetime.datetime.now().date()
-        deadline = data.get('deadline_of_new_task')
-        priority = data.get("task_priority")
-        done = False
-        task = Task(user=user, text=text, added_at=added_at,deadline=deadline, priority=priority, done=done)
-        task.save()
+    #def post(self, request, **kwargs):
+        #data = request.POST
+        #print(data)
+        #user = request.user
+        #text = data.get('text_of_new_task')
+        #added_at = datetime.datetime.now().date()
+        #deadline = data.get('deadline_of_new_task')
+        #priority = data.get("task_priority")
+        #done = False
+        #task = Task(user=user, text=text, added_at=added_at, deadline=deadline, priority=priority, done=done)
+        #task.save()
+        #tasks_today = Task.objects.filter(user=user, deadline=datetime.date.today())
+        #tasks_tomorrow = Task.objects.filter(user=user, deadline=datetime.date.today() + datetime.timedelta(days=1))
+        #tasks_the_day_after_tomorrow = Task.objects.filter(user=user,deadline=datetime.date.today() + datetime.timedelta(days=2))
+        #response = render_block_to_string("home.html", "tasks", {
+            #"today": tasks_today,
+            #"tomorrow": tasks_tomorrow,
+            #"the_day_after_tomorrow": tasks_the_day_after_tomorrow
+        #})
+        #return HttpResponse(response)
+
+    def get_success_url(self):
+        print("123")
+        user = self.request.user
         tasks_today = Task.objects.filter(user=user,deadline=datetime.date.today())
         tasks_tomorrow = Task.objects.filter(user=user,deadline=datetime.date.today() + datetime.timedelta(days=1))
         tasks_the_day_after_tomorrow = Task.objects.filter(user=user,deadline=datetime.date.today() + datetime.timedelta(days=2))
-        response = render_block_to_string("home.html", "tasks", {"today":tasks_today,
-                                                                                                        "tomorrow":tasks_tomorrow,
-                                                                                                        "the_day_after_tomorrow":tasks_the_day_after_tomorrow})
+        response = render_block_to_string("home.html", "tasks", {
+            "today":tasks_today,
+            "tomorrow":tasks_tomorrow,
+            "the_day_after_tomorrow":tasks_the_day_after_tomorrow
+        })
         return HttpResponse(response)
 
 
-class EditTaskPage(IsAuthenticated,TemplateView):
+class EditTaskPage(IsAuthenticated,TemplateView): #зробити через апдейт
     template_name = "task.html"
-
-
     def post(self,request,**kwargs):
         data = request.POST
         print(data)
         task = Task.objects.get(id=kwargs["pk"])
         if data.get("new_task_text") is not None:
-            task.update(text=data.get("new_task_text"))
+            task.text=data.get("new_task_text")
         if data.get("new_task_deadline") is not None:
-            task.update(deadline=data.get("new_task_deadline"))
+            task.deadline=data.get("new_task_deadline")
         if data.get("new_task_priority") is not None:
-            task.update(priority=data.get("new_task_priority"))
+            task.priority=data.get("new_task_priority")
         if data.get("new_task_state") is not None:
-            task.update(done=data.get("new_task_state"))
-        response = render_block_to_string("task.html", "task", {"old_text": task.text,
-                                                                 "old_deadline": task.deadline,
-                                                                 "old_priority": task.priority,
-                                                                 "old_state": task.done})
+            if data.get("new_task_state") == "done":
+                task.done = True
+            else:
+                task.done = False
+        task.save()
+        response = render_block_to_string("task.html", "task", {
+            "old_text": task.text,
+            "old_deadline": task.deadline,
+            "old_priority": task.priority,
+            "old_state": task.done
+        })
         return HttpResponse(response)
 
     def get_context_data(self, **kwargs):
@@ -121,7 +127,7 @@ class EditTaskPage(IsAuthenticated,TemplateView):
         return context
 
 
-class ProfileEditPage(IsAuthenticated,TemplateView):
+class ProfileEditPage(IsAuthenticated,TemplateView): #зробити через апдейтвью
     template_name = "profile.html"
 
     def get_context_data(self, **kwargs):
@@ -137,11 +143,22 @@ class ProfileEditPage(IsAuthenticated,TemplateView):
         user = request.user
         new_username = data.get("new_username")
         new_email = data.get("new_email")
-        user.name = new_username
+        user.username = new_username
         user.email = new_email
-        user.save(updated_fields=["username","email"])
-        response = render_block_to_string("profile.html", "user", {"username": user.username,
-                                                                "email": user.email})
+        user.save()
+        response = render_block_to_string("profile.html", "user", {
+            "username": user.username,
+            "email": user.email
+        })
+        return HttpResponse(response)
+
+class DeleteTaskPage(IsAuthenticated,TemplateView):
+    template_name = "tasklist.html"
+    def post(self,request,**kwargs):
+        task = Task.objects.get(id=kwargs["pk"])
+        task.delete()
+        tasks = Task.sort(request.POST.get('sorting_tag'), request)
+        response = render_block_to_string("tasklist.html", "tasks", {"tasklist": tasks})
         return HttpResponse(response)
 
 def Logout(request):
@@ -149,5 +166,8 @@ def Logout(request):
     return redirect("/")
 
 
+class Test(IsAuthenticated,CreateView):
+    form_class = Create_task_class
+    template_name = "test.html"
 
 

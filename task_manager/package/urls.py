@@ -12,5 +12,7 @@ urlpatterns = [
     path('profile/', views.ProfileEditPage.as_view(), name = 'Profile'),
     path('createtask/', views.CreateTaskPage.as_view(), name = 'CreateTask'),
     path('edittask/<int:pk>', views.EditTaskPage.as_view(), name = 'EditTask'),
+    path('deletetask/<int:pk>', views.DeleteTaskPage.as_view(), name = 'DeleteTask'),
+    path('test/', views.Test.as_view()),
     path('logout/', views.Logout, name = 'Logout')
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
